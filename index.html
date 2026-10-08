@@ -118,9 +118,8 @@
       -webkit-tap-highlight-color: transparent;
     }
     .lantern:hover, .lantern:focus-visible, .lantern:focus-within { animation-play-state: paused; z-index: 5; filter: drop-shadow(0 0 14px rgba(255, 194, 91, .68)); outline: none; }
-    .lantern.new-lantern { animation: lantern-launch 4s cubic-bezier(.2,.72,.27,1) forwards, sway var(--sway) ease-in-out 4s infinite alternate; }
+    .lantern.new-lantern { animation: lantern-launch 4s cubic-bezier(.2,.72,.27,1) forwards; }
     .lantern.saved-lantern { animation: sway var(--sway) ease-in-out var(--delay) infinite alternate; }
-    .lantern.new-lantern:hover, .lantern.new-lantern:focus-visible { animation-play-state: running, paused; }
     .lantern:focus-visible .shell { outline: 2px solid #fff1c8; outline-offset: 5px; }
     .shell {
       position: absolute; inset: 4% 5% 17%; overflow: hidden;
@@ -157,7 +156,7 @@
     .hint { display: none; }
     .horizon { position: absolute; bottom: -78px; left: 50%; width: 140%; height: 170px; transform: translateX(-50%); border-radius: 50% 50% 0 0; background: linear-gradient(180deg, #211c34 0%, #121322 43%, #090b15 100%); box-shadow: 0 -12px 46px rgba(239, 133, 92, .09); }
     .horizon::before { content: ""; position: absolute; top: 16px; left: 12%; width: 76%; height: 26px; border-radius: 50%; background: rgba(245, 162, 105, .08); filter: blur(15px); }
-    @keyframes lantern-launch { from { left: var(--launch-x); bottom: -90px; } to { left: var(--x); bottom: var(--rest); } }
+    @keyframes lantern-launch { from { left: var(--launch-x); bottom: -90px; } to { left: var(--launch-x); bottom: var(--rest); } }
     @keyframes sway { from { translate: -10px 0; rotate: -3deg; } to { translate: 10px 0; rotate: 3deg; } }
     @keyframes star-drift { from { transform: translateY(0); } to { transform: translateY(-250px); } }
     @keyframes sigil-glow { from { box-shadow: 0 0 28px rgba(255,193,103,.12), inset 0 0 18px rgba(255,193,103,.06); } to { box-shadow: 0 0 48px rgba(255,193,103,.28), inset 0 0 28px rgba(255,193,103,.16); } }
@@ -279,7 +278,8 @@
       lantern.className = `lantern ${animate ? 'new-lantern' : 'saved-lantern'}`;
       lantern.style.setProperty('--x', `${displayX.toFixed(2)}%`);
       lantern.style.setProperty('--rest', `${wishData.rest}%`);
-      if (animate) lantern.style.setProperty('--launch-x', `${(8 + Math.random() * 84).toFixed(2)}%`);
+      // Start directly below the resting position so the flight stays vertical.
+      if (animate) lantern.style.setProperty('--launch-x', `${displayX.toFixed(2)}%`);
       lantern.style.setProperty('--size', `${wishData.size}px`);
       lantern.style.setProperty('--sway', `${wishData.sway}s`);
       lantern.style.setProperty('--delay', `${wishData.delay || 0}s`);
@@ -435,14 +435,10 @@
 
       // Keep stored x inside the existing database constraint; display positions
       // are spread across the full sky from each wish's stable ID above.
-      const composerRight = form.getBoundingClientRect().right;
-      const skyWidth = sky.clientWidth || window.innerWidth;
       const phoneSky = window.matchMedia('(max-width: 600px)').matches;
-      const safeX = Math.min(88, Math.max(22, ((composerRight + 24) / skyWidth) * 100));
-      const minX = phoneSky ? safeX : 22;
       const wishData = {
         text: wish,
-        x: Number((minX + Math.random() * (96 - minX)).toFixed(2)),
+        x: Number((22 + Math.random() * 74).toFixed(2)),
         rest: Number(((phoneSky ? 8 : 68) + Math.random() * (phoneSky ? 85 : 25)).toFixed(2)),
         size: 34 + Math.round(Math.random() * 14),
         sway: Number((4 + Math.random() * 2).toFixed(2)),
