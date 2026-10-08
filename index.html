@@ -266,10 +266,18 @@
         if (seenWishIds.has(id)) return;
         seenWishIds.add(id);
       }
+      // Give the full saved collection a stable, even spread across the sky.
+      // The low-discrepancy sequence keeps earlier wishes from staying bunched
+      // on the right and gives every browser the same positions after reload.
+      const wishId = Number(wishData.id);
+      const spread = Number.isSafeInteger(wishId)
+        ? ((wishId * 0.61803398875) % 1 + 1) % 1
+        : null;
+      const displayX = spread === null ? Number(wishData.x) : 8 + spread * 84;
       const lantern = document.createElement('button');
       lantern.type = 'button';
       lantern.className = `lantern ${animate ? 'new-lantern' : 'saved-lantern'}`;
-      lantern.style.setProperty('--x', `${wishData.x}%`);
+      lantern.style.setProperty('--x', `${displayX.toFixed(2)}%`);
       lantern.style.setProperty('--rest', `${wishData.rest}%`);
       if (animate) lantern.style.setProperty('--launch-x', `${(8 + Math.random() * 84).toFixed(2)}%`);
       lantern.style.setProperty('--size', `${wishData.size}px`);
@@ -425,12 +433,13 @@
       const wish = input.value.trim();
       if (!wish) return;
 
-      // Leave the left edge clear for the wish composer and scatter launches across the sky.
+      // Keep stored x inside the existing database constraint; display positions
+      // are spread across the full sky from each wish's stable ID above.
       const composerRight = form.getBoundingClientRect().right;
       const skyWidth = sky.clientWidth || window.innerWidth;
       const phoneSky = window.matchMedia('(max-width: 600px)').matches;
       const safeX = Math.min(88, Math.max(22, ((composerRight + 24) / skyWidth) * 100));
-      const minX = phoneSky ? safeX : 8;
+      const minX = phoneSky ? safeX : 22;
       const wishData = {
         text: wish,
         x: Number((minX + Math.random() * (96 - minX)).toFixed(2)),
