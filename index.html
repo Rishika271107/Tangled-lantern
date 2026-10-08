@@ -142,8 +142,7 @@
       box-shadow: 0 8px 25px rgba(0, 0, 0, .2); backdrop-filter: blur(8px); pointer-events: none;
     }
     .wish::before { content: "✦"; display: block; margin-bottom: 3px; color: #ffd68b; font: 10px system-ui, sans-serif; }
-    .lantern:nth-child(3n) .wish { left: auto; right: calc(100% + 14px); text-align: right; }
-    .lantern:nth-child(3n) .wish::before { text-align: right; }
+    .lantern.wish-left .wish { left: auto; right: calc(100% + 14px); text-align: left; }
     .lantern:hover .wish, .lantern:focus-visible .wish, .lantern:focus-within .wish { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0) scale(1); }
     .composer { position: absolute; z-index: 3; left: 24px; bottom: 54px; display: flex; flex-direction: column; gap: 10px; width: min(250px, calc(100% - 36px)); aspect-ratio: 1; padding: 18px; border: 1px solid rgba(255, 224, 167, .26); border-radius: 18px; background: rgba(16, 16, 33, .76); box-shadow: 0 8px 30px rgba(0,0,0,.2); backdrop-filter: blur(10px); }
     .composer label { color: #e9c997; font: 600 10px/1.4 system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; }
@@ -191,8 +190,7 @@
       .composer button { padding: 9px 10px; font-size: 11px; }
       .wish-status { min-height: 0; font-size: 9px; }
       .wish { max-width: 43vw; padding: 8px 9px; font-size: 11px; }
-      .lantern .wish { left: auto; right: calc(100% + 9px); }
-      .lantern:nth-child(3n) .wish { left: calc(100% + 9px); right: auto; }
+      .lantern.wish-left .wish { right: calc(100% + 9px); }
     }
     @media (max-width: 380px) {
       .landing-content { padding-inline: 14px; transform: translateY(-11vh); }
@@ -235,9 +233,9 @@
     <div class="moon" aria-hidden="true"></div>
     <section class="lantern-field" aria-label="Hover over a lantern to discover its wish">
       <button class="lantern" style="--x:35%;--rest:56%;--delay:-8s;--sway:5s;--size:37px" aria-label="Floating lantern. Wish: More kindness, every day."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">More kindness, every day.</span></button>
-      <button class="lantern" style="--x:53%;--rest:71%;--delay:-14s;--sway:6s;--size:43px" aria-label="Floating lantern. Wish: Let hope shine on."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">Let hope shine on.</span></button>
-      <button class="lantern" style="--x:69%;--rest:48%;--delay:-5s;--sway:4.5s;--size:34px" aria-label="Floating lantern. Wish: May we find more wonder."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">May we find more wonder.</span></button>
-      <button class="lantern" style="--x:82%;--rest:64%;--delay:-19s;--sway:5.5s;--size:40px" aria-label="Floating lantern. Wish: Peace to every heart."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">Peace to every heart.</span></button>
+      <button class="lantern wish-left" style="--x:53%;--rest:71%;--delay:-14s;--sway:6s;--size:43px" aria-label="Floating lantern. Wish: Let hope shine on."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">Let hope shine on.</span></button>
+      <button class="lantern wish-left" style="--x:69%;--rest:48%;--delay:-5s;--sway:4.5s;--size:34px" aria-label="Floating lantern. Wish: May we find more wonder."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">May we find more wonder.</span></button>
+      <button class="lantern wish-left" style="--x:82%;--rest:64%;--delay:-19s;--sway:5.5s;--size:40px" aria-label="Floating lantern. Wish: Peace to every heart."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">Peace to every heart.</span></button>
       <button class="lantern" style="--x:43%;--rest:83%;--delay:-11s;--sway:6.5s;--size:33px" aria-label="Floating lantern. Wish: May good days find you."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">May good days find you.</span></button>
     </section>
     <form class="composer" id="wish-form">
@@ -275,7 +273,7 @@
       const displayX = spread === null ? Number(wishData.x) : 8 + spread * 84;
       const lantern = document.createElement('button');
       lantern.type = 'button';
-      lantern.className = `lantern ${animate ? 'new-lantern' : 'saved-lantern'}`;
+      lantern.className = `lantern ${animate ? 'new-lantern' : 'saved-lantern'}${displayX > 50 ? ' wish-left' : ''}`;
       lantern.style.setProperty('--x', `${displayX.toFixed(2)}%`);
       lantern.style.setProperty('--rest', `${wishData.rest}%`);
       // Start directly below the resting position so the flight stays vertical.
