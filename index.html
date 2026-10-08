@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b20">
+  <meta name="description" content="A quiet night sky filled with floating lanterns and little wishes." />
+  <title>Lantern Wishes</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --sky: #080b20;
+      --gold: #ffd98a;
+      --cream: #fff0c9;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      background: var(--sky);
+      color: #fff7e8;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    .sky {
+      position: relative;
+      width: 100%;
+      height: 100svh;
+      min-height: 540px;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(ellipse at 52% 105%, rgba(184, 88, 78, .25), transparent 48%),
+        radial-gradient(ellipse at 85% 27%, rgba(66, 69, 130, .19), transparent 43%),
+        linear-gradient(180deg, #080b20 0%, #10142e 54%, #211a36 100%);
+    }
+    .sky::before, .sky::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .sky::before {
+      inset: 0;
+      opacity: .53;
+      background-image:
+        radial-gradient(1px 1px at 7% 17%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 13% 69%, #dce5ff 98%, transparent),
+        radial-gradient(1.5px 1.5px at 21% 35%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 27% 12%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 34% 77%, #fff0d4 98%, transparent),
+        radial-gradient(1.5px 1.5px at 43% 23%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 51% 64%, #e6eaff 98%, transparent),
+        radial-gradient(1px 1px at 58% 11%, #fff 98%, transparent),
+        radial-gradient(1.5px 1.5px at 66% 39%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 74% 72%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 82% 17%, #fff0d4 98%, transparent),
+        radial-gradient(1.5px 1.5px at 91% 48%, #fff 98%, transparent),
+        radial-gradient(1px 1px at 96% 10%, #fff 98%, transparent);
+      background-size: 310px 250px;
+      animation: star-drift 42s linear infinite;
+    }
+    .sky::after {
+      left: -10%; right: -10%; bottom: -75px; height: 190px;
+      background: linear-gradient(180deg, transparent, rgba(5, 7, 18, .82) 47%, #050711 100%);
+    }
+    .moon {
+      position: absolute; top: 11%; right: 14%; width: clamp(52px, 7vw, 88px); aspect-ratio: 1;
+      border-radius: 50%; background: #fff0cf;
+      box-shadow: 0 0 28px 8px rgba(255, 223, 163, .16), 0 0 100px 25px rgba(255, 223, 163, .08);
+      opacity: .85;
+    }
+    .moon::after { content: ""; position: absolute; width: 96%; aspect-ratio: 1; border-radius: 50%; top: -8px; left: 17px; background: #10142e; }
+    .intro { display: none; }
+    .eyebrow { margin: 0 0 12px; color: #e9c997; font: 600 10px/1.4 system-ui, sans-serif; letter-spacing: .34em; text-transform: uppercase; }
+    h1 { margin: 0; color: #fff2d8; font-size: clamp(30px, 5vw, 53px); font-weight: 400; letter-spacing: .025em; text-shadow: 0 2px 30px rgba(255, 203, 120, .22); }
+    .subtitle { margin: 12px 0 0; color: rgba(246, 230, 206, .7); font-size: clamp(13px, 1.8vw, 16px); font-style: italic; }
+    .landing { position: absolute; z-index: 10; inset: 0; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse at 58% 46%, rgba(91, 106, 151, .22), transparent 48%), linear-gradient(165deg, #090f27 0%, #111a38 42%, #202944 68%, #10172d 100%); transition: opacity .8s ease, visibility .8s ease; }
+    .landing::before { content: ""; position: absolute; inset: 0; opacity: .3; background: repeating-conic-gradient(from 7deg at 51% 44%, rgba(199,216,255,.07) 0deg 22deg, rgba(8,13,32,.08) 22deg 45deg); pointer-events: none; }
+    .landing::after { content: ""; position: absolute; inset: auto -5% -2% -5%; height: 31%; background: linear-gradient(180deg, #392b50 0%, #241f3b 48%, #17182e 100%); clip-path: polygon(0 38%, 9% 29%, 18% 42%, 28% 12%, 38% 33%, 51% 14%, 62% 39%, 74% 19%, 85% 38%, 94% 18%, 100% 33%, 100% 100%, 0 100%); pointer-events: none; }
+    .storybook-lanterns { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .storybook-lanterns i { position: absolute; display: block; width: var(--lantern-width, 6px); height: var(--lantern-height, 9px); border: 1px solid rgba(255,232,183,.75); border-radius: 2px 2px 3px 3px; background: linear-gradient(90deg,#e89345,#fff0b0 48%,#e99c49); box-shadow: 0 0 10px 3px rgba(255,189,89,.24); animation: story-float var(--float, 5s) ease-in-out infinite alternate; }
+    .storybook-lanterns i:nth-child(1) { left: 13%; top: 22%; transform: scale(.8); }
+    .storybook-lanterns i:nth-child(2) { left: 27%; top: 15%; animation-delay: -2s; }
+    .storybook-lanterns i:nth-child(3) { right: 13%; top: 21%; transform: scale(1.25); animation-delay: -1s; }
+    .storybook-lanterns i:nth-child(4) { right: 27%; top: 13%; transform: scale(.75); animation-delay: -3s; }
+    .storybook-lanterns i:nth-child(5) { left: 8%; top: 49%; transform: scale(.7); animation-delay: -1.5s; }
+    .landing-content { position: relative; z-index: 2; width: min(90%, 700px); padding: 24px; text-align: center; transform: translateY(-12vh); }
+    .landing .eyebrow { margin-bottom: 16px; }
+    .landing h1 { font-size: clamp(42px, 8vw, 82px); line-height: 1.05; }
+    .landing .subtitle { max-width: 480px; margin: 20px auto 32px; line-height: 1.8; }
+    .make-wish { display: inline-flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 231, 180, .72); border-radius: 999px; padding: 14px 25px; background: linear-gradient(135deg, #f4d18f, #e6a65f); color: #302034; font: 600 12px system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; box-shadow: 0 8px 32px rgba(243,171,91,.2); transition: transform .2s ease, box-shadow .2s ease; }
+    .make-wish:hover { transform: translateY(-2px); box-shadow: 0 12px 38px rgba(243,171,91,.34); }
+    .make-wish:focus-visible { outline: 2px solid #fff0c9; outline-offset: 5px; }
+    .storybook-couple { position: absolute; z-index: 1; left: 50%; bottom: 8%; width: clamp(290px, 53vw, 620px); height: clamp(165px, 30vh, 280px); transform: translateX(-50%); pointer-events: none; }
+    .storybook-couple .hill { position: absolute; left: -28%; right: -28%; bottom: -12%; height: 43%; border-radius: 50% 50% 0 0; background: linear-gradient(180deg, #574363, #171a32); box-shadow: 0 -12px 35px rgba(255,166,106,.12); }
+    .storybook-couple .boat { position: absolute; left: 10%; right: 10%; bottom: 5%; height: 42%; background: linear-gradient(180deg,#bc865d 0%,#744d59 35%,#322b48 83%); clip-path: polygon(0 0, 13% 16%, 30% 31%, 50% 35%, 70% 31%, 87% 16%, 100% 0, 94% 56%, 78% 82%, 50% 100%, 22% 82%, 6% 56%); filter: drop-shadow(0 12px 10px rgba(8,10,24,.4)); z-index: 2; }
+    .storybook-couple .boat::before { content: ""; position: absolute; left: 7%; right: 7%; top: 8%; height: 4px; background: #f5cc86; }
+    .storybook-couple .reflection { position: absolute; left: 24%; right: 24%; bottom: -12%; height: 17%; opacity: .36; background: linear-gradient(180deg, #a57a9e, transparent); clip-path: polygon(18% 0,82% 0,100% 100%,0 100%); filter: blur(5px); }
+    .storybook-couple .figure { position: absolute; bottom: 24%; width: 48px; height: 83px; transform-origin: 50% 100%; z-index: 1; }
+    .storybook-couple .figure::before { content: ""; position: absolute; top: 0; left: 14px; width: 27px; height: 29px; border-radius: 50%; background: #f0c894; box-shadow: inset -7px 1px 0 #a95642; }
+    .storybook-couple .figure::after { content: ""; position: absolute; left: 2px; bottom: 0; width: 46px; height: 49px; background: linear-gradient(130deg,#704c86,#302a4c); clip-path: polygon(34% 0,70% 0,100% 100%,0 100%); }
+    .storybook-couple .figure.princess { left: 37%; bottom: 23%; transform: scale(.72) rotate(-17deg); }
+    .storybook-couple .figure.princess::before { box-shadow: -7px -2px 0 5px #e9c76f, inset -7px 1px 0 #ca8e56; }
+    .storybook-couple .figure.princess::after { background: linear-gradient(130deg,#b26d9b,#654873); }
+    .storybook-couple .figure.companion { right: 36%; bottom: 23%; transform: scale(.72) rotate(17deg); }
+    .storybook-couple .figure.companion::before { background: #eac08d; box-shadow: inset -7px 1px 0 #674633; }
+    .storybook-couple .figure.companion::after { background: linear-gradient(130deg,#48716b,#303c4a); }
+    .sky.entered .landing { opacity: 0; visibility: hidden; pointer-events: none; }
+    .lantern-field { position: absolute; inset: 0; z-index: 1; }
+    .lantern {
+      --size: 42px;
+      position: absolute; left: var(--x); bottom: var(--rest, 12%); z-index: 1;
+      width: var(--size); height: calc(var(--size) * 1.42);
+      border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer;
+      transform-origin: 50% 75%;
+      animation: sway var(--sway) ease-in-out var(--delay) infinite alternate;
+      filter: drop-shadow(0 0 9px rgba(255, 174, 67, .24));
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lantern:hover, .lantern:focus-visible, .lantern:focus-within { animation-play-state: paused; z-index: 5; filter: drop-shadow(0 0 14px rgba(255, 194, 91, .68)); outline: none; }
+    .lantern.new-lantern { --rest: 72%; animation: lantern-launch 4s cubic-bezier(.2,.72,.27,1) forwards, sway var(--sway) ease-in-out 4s infinite alternate; }
+    .lantern.new-lantern:hover, .lantern.new-lantern:focus-visible { animation-play-state: paused, paused; }
+    .lantern:focus-visible .shell { outline: 2px solid #fff1c8; outline-offset: 5px; }
+    .shell {
+      position: absolute; inset: 4% 5% 17%; overflow: hidden;
+      border: 1px solid rgba(255, 231, 175, .74);
+      border-radius: 48% 48% 35% 35% / 17% 17% 19% 19%;
+      background: linear-gradient(90deg, rgba(184, 92, 28, .88), #ffce76 25%, #fff0b4 50%, #ffc663 73%, rgba(179, 82, 25, .88));
+      box-shadow: inset 0 -7px 10px rgba(209, 104, 35, .27), inset 0 4px 7px rgba(255, 255, 239, .76), 0 0 13px rgba(255, 182, 67, .35);
+    }
+    .shell::before, .shell::after { content: ""; position: absolute; top: 2%; bottom: 3%; width: 1px; background: rgba(171, 105, 49, .35); }
+    .shell::before { left: 25%; } .shell::after { right: 25%; }
+    .rim { position: absolute; left: 18%; right: 18%; bottom: 12%; height: 7%; border-radius: 50%; background: #8e4c32; box-shadow: 0 0 7px rgba(255, 207, 108, .55); }
+    .flame { position: absolute; left: 43%; bottom: 17%; width: 14%; height: 18%; border-radius: 60% 40% 55% 45%; background: #fff9cc; box-shadow: 0 0 9px 4px #ffbc55, 0 0 23px 9px rgba(255, 154, 48, .45); transform: rotate(8deg); }
+    .wish {
+      position: absolute; left: calc(100% + 14px); top: 50%; width: max-content; max-width: min(240px, 62vw);
+      padding: 10px 14px; border: 1px solid rgba(255, 224, 167, .25); border-radius: 12px;
+      background: rgba(21, 19, 37, .78); color: #fff0ce; font: italic 14px/1.45 Georgia, serif;
+      text-align: left; white-space: normal; opacity: 0; visibility: hidden;
+      transform: translateY(-50%) translateX(-5px) scale(.97);
+      transition: opacity .22s ease, transform .22s ease, visibility .22s;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, .2); backdrop-filter: blur(8px); pointer-events: none;
+    }
+    .wish::before { content: "✦"; display: block; margin-bottom: 3px; color: #ffd68b; font: 10px system-ui, sans-serif; }
+    .lantern:nth-child(3n) .wish { left: auto; right: calc(100% + 14px); text-align: right; }
+    .lantern:nth-child(3n) .wish::before { text-align: right; }
+    .lantern:hover .wish, .lantern:focus-visible .wish, .lantern:focus-within .wish { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0) scale(1); }
+    .composer { position: absolute; z-index: 3; left: 24px; bottom: 54px; display: flex; flex-direction: column; gap: 10px; width: min(250px, calc(100% - 36px)); aspect-ratio: 1; padding: 18px; border: 1px solid rgba(255, 224, 167, .26); border-radius: 18px; background: rgba(16, 16, 33, .76); box-shadow: 0 8px 30px rgba(0,0,0,.2); backdrop-filter: blur(10px); }
+    .composer label { color: #e9c997; font: 600 10px/1.4 system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+    .composer input { min-width: 0; flex: 1; border: 1px solid rgba(255, 224, 167, .18); border-radius: 11px; outline: 0; padding: 12px; background: rgba(8, 11, 32, .38); color: #fff0ce; font: italic 15px/1.5 Georgia, serif; }
+    .composer input::placeholder { color: rgba(246, 230, 206, .55); }
+    .composer button { flex: 0 0 auto; border: 1px solid rgba(255, 226, 174, .45); border-radius: 11px; padding: 11px 15px; background: linear-gradient(135deg, #f4c77c, #df9b55); color: #32202a; font: 600 12px system-ui, sans-serif; cursor: pointer; }
+    .composer button:hover { filter: brightness(1.08); }
+    .composer button:focus-visible, .composer input:focus-visible { outline: 2px solid #fff0c9; outline-offset: 2px; }
+    .hint { display: none; }
+    .horizon { position: absolute; bottom: -78px; left: 50%; width: 140%; height: 170px; transform: translateX(-50%); border-radius: 50% 50% 0 0; background: linear-gradient(180deg, #211c34 0%, #121322 43%, #090b15 100%); box-shadow: 0 -12px 46px rgba(239, 133, 92, .09); }
+    .horizon::before { content: ""; position: absolute; top: 16px; left: 12%; width: 76%; height: 26px; border-radius: 50%; background: rgba(245, 162, 105, .08); filter: blur(15px); }
+    @keyframes lantern-launch { from { bottom: -90px; } to { bottom: var(--rest); } }
+    @keyframes sway { from { translate: -10px 0; rotate: -3deg; } to { translate: 10px 0; rotate: 3deg; } }
+    @keyframes star-drift { from { transform: translateY(0); } to { transform: translateY(-250px); } }
+    @keyframes sigil-glow { from { box-shadow: 0 0 28px rgba(255,193,103,.12), inset 0 0 18px rgba(255,193,103,.06); } to { box-shadow: 0 0 48px rgba(255,193,103,.28), inset 0 0 28px rgba(255,193,103,.16); } }
+    @keyframes story-float { from { margin-top: 0; } to { margin-top: -18px; } }
+    @media (max-width: 600px) {
+      .moon { right: 9%; top: 19%; }
+      .lantern { --size: 34px; }
+      .composer { left: 14px; bottom: 48px; width: min(230px, calc(100% - 28px)); padding: 14px; }
+      .wish { font-size: 12px; padding: 8px 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="sky" aria-label="A night sky with floating wish lanterns">
+    <section class="landing" aria-label="Welcome to Lantern Wishes">
+      <div class="storybook-lanterns" aria-hidden="true" id="storybook-lanterns"></div>
+      <div class="landing-content">
+        <p class="eyebrow">A sky full of possibility</p>
+        <h1>Lantern Wishes</h1>
+        <p class="subtitle">Beneath a velvet night sky, every light carries a little hope. Add your wish to the night and watch it find its place among the stars.</p>
+        <button class="make-wish" id="make-wish" type="button">Make a wish <span aria-hidden="true">✧</span></button>
+      </div>
+      <div class="storybook-couple" aria-hidden="true"><div class="hill"></div><div class="boat"></div><div class="figure princess"></div><div class="figure companion"></div><div class="reflection"></div></div>
+    </section>
+    <div class="moon" aria-hidden="true"></div>
+    <section class="lantern-field" aria-label="Hover over a lantern to discover its wish">
+      <button class="lantern" style="--x:35%;--rest:56%;--delay:-8s;--sway:5s;--size:37px" aria-label="Floating lantern. Wish: More kindness, every day."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">More kindness, every day.</span></button>
+      <button class="lantern" style="--x:53%;--rest:71%;--delay:-14s;--sway:6s;--size:43px" aria-label="Floating lantern. Wish: Let hope shine on."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">Let hope shine on.</span></button>
+      <button class="lantern" style="--x:69%;--rest:48%;--delay:-5s;--sway:4.5s;--size:34px" aria-label="Floating lantern. Wish: May we find more wonder."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">May we find more wonder.</span></button>
+      <button class="lantern" style="--x:82%;--rest:64%;--delay:-19s;--sway:5.5s;--size:40px" aria-label="Floating lantern. Wish: Peace to every heart."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">Peace to every heart.</span></button>
+      <button class="lantern" style="--x:43%;--rest:83%;--delay:-11s;--sway:6.5s;--size:33px" aria-label="Floating lantern. Wish: May good days find you."><span class="shell"><i class="flame"></i></span><i class="rim"></i><span class="wish">May good days find you.</span></button>
+    </section>
+    <form class="composer" id="wish-form">
+      <label for="wish-input">Send a little wish</label>
+      <input id="wish-input" type="text" maxlength="100" placeholder="Write your wish…" aria-label="Write your wish" required>
+      <button type="submit">Fly wish ✦</button>
+    </form>
+    <div class="horizon" aria-hidden="true"></div>
+  </main>
+  <script>
+    const form = document.querySelector('#wish-form');
+    const input = document.querySelector('#wish-input');
+    const field = document.querySelector('.lantern-field');
+    const sky = document.querySelector('.sky');
+
+    // A loose stream of small, glowing lanterns adds depth to the illustrated welcome sky.
+    const storyLanterns = document.querySelector('#storybook-lanterns');
+    for (let i = 0; i < 150; i += 1) {
+      const mote = document.createElement('i');
+      const progress = Math.random();
+      const center = 58 + Math.sin(progress * Math.PI * 2.2) * 12;
+      const spread = 5 + progress * 26;
+      mote.style.left = `${Math.max(2, Math.min(96, center + (Math.random() - .5) * spread * 2))}%`;
+      mote.style.top = `${Math.max(3, Math.min(82, 76 - progress * 72 + (Math.random() - .5) * 9))}%`;
+      mote.style.setProperty('--lantern-width', `${2 + Math.random() * 4}px`);
+      mote.style.setProperty('--lantern-height', `${3 + Math.random() * 6}px`);
+      mote.style.setProperty('--float', `${3 + Math.random() * 6}s`);
+      mote.style.animationDelay = `${-Math.random() * 6}s`;
+      mote.style.opacity = `${.35 + Math.random() * .65}`;
+      storyLanterns.append(mote);
+    }
+
+    document.querySelector('#make-wish').addEventListener('click', () => {
+      sky.classList.add('entered');
+      window.setTimeout(() => input.focus(), 450);
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const wish = input.value.trim();
+      if (!wish) return;
+
+      const lantern = document.createElement('button');
+      lantern.type = 'button';
+      lantern.className = 'lantern new-lantern';
+      // Leave the left edge clear for the wish composer and scatter launches across the sky.
+      lantern.style.setProperty('--x', `${22 + Math.random() * 74}%`);
+      const targetHeight = 68 + Math.random() * 25;
+      lantern.style.setProperty('--rest', `${targetHeight}%`);
+      lantern.style.setProperty('--size', `${34 + Math.round(Math.random() * 14)}px`);
+      lantern.style.setProperty('--sway', `${4 + Math.random() * 2}s`);
+      lantern.setAttribute('aria-label', `Your floating lantern. Wish: ${wish}`);
+
+      const shell = document.createElement('span');
+      shell.className = 'shell';
+      const flame = document.createElement('i');
+      flame.className = 'flame';
+      shell.append(flame);
+      const rim = document.createElement('i');
+      rim.className = 'rim';
+      const wishText = document.createElement('span');
+      wishText.className = 'wish';
+      wishText.textContent = wish;
+      lantern.append(shell, rim, wishText);
+      field.append(lantern);
+
+      input.value = '';
+      input.focus();
+    });
+  </script>
+</body>
+</html>
