@@ -75,7 +75,16 @@ async function handler(request) {
     return json({ ...saved, text: savedWish }, 201);
   } catch (error) {
     console.error('Wish storage error:', error);
-    return json({ error: 'Could not access shared wish storage.' }, 500);
+    const code = typeof error?.code === 'string' ? error.code : String(error?.status || 'UNKNOWN');
+    let message = 'Supabase returned an error. Check the Vercel function logs for this request.';
+    if (code === '42P01' || code === 'PGRST205') {
+      message = 'The lantern_wishes table was not found in the Supabase project connected to Vercel. Run supabase/schema.sql in that same project.';
+    } else if (code === '42501') {
+      message = 'Supabase denied access to lantern_wishes. Run the GRANT statements in supabase/schema.sql in the connected project.';
+    } else if (code === '401' || code === '403') {
+      message = 'Supabase rejected the API key. Check that SUPABASE_URL and SUPABASE_SECRET_KEY belong to the same project.';
+    }
+    return json({ error: message, code }, 500);
   }
 }
 
