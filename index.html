@@ -148,6 +148,7 @@
     .lantern:hover .wish, .lantern:focus-visible .wish, .lantern:focus-within .wish { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0) scale(1); }
     .composer { position: absolute; z-index: 3; left: 24px; bottom: 54px; display: flex; flex-direction: column; gap: 10px; width: min(250px, calc(100% - 36px)); aspect-ratio: 1; padding: 18px; border: 1px solid rgba(255, 224, 167, .26); border-radius: 18px; background: rgba(16, 16, 33, .76); box-shadow: 0 8px 30px rgba(0,0,0,.2); backdrop-filter: blur(10px); }
     .composer label { color: #e9c997; font: 600 10px/1.4 system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; }
+    .wish-status { min-height: 16px; color: #ffd6ad; font: 11px/1.4 system-ui, sans-serif; }
     .composer input { min-width: 0; flex: 1; border: 1px solid rgba(255, 224, 167, .18); border-radius: 11px; outline: 0; padding: 12px; background: rgba(8, 11, 32, .38); color: #fff0ce; font: italic 15px/1.5 Georgia, serif; }
     .composer input::placeholder { color: rgba(246, 230, 206, .55); }
     .composer button { flex: 0 0 auto; border: 1px solid rgba(255, 226, 174, .45); border-radius: 11px; padding: 11px 15px; background: linear-gradient(135deg, #f4c77c, #df9b55); color: #32202a; font: 600 12px system-ui, sans-serif; cursor: pointer; }
@@ -196,6 +197,7 @@
       <label for="wish-input">Send a little wish</label>
       <input id="wish-input" type="text" maxlength="100" placeholder="Write your wish…" aria-label="Write your wish" required>
       <button type="submit">Fly wish ✦</button>
+      <span class="wish-status" id="wish-status" role="status" aria-live="polite"></span>
     </form>
     <div class="horizon" aria-hidden="true"></div>
   </main>
@@ -204,15 +206,8 @@
     const input = document.querySelector('#wish-input');
     const field = document.querySelector('.lantern-field');
     const sky = document.querySelector('.sky');
-    const wishesStorageKey = 'lantern-wishes-v1';
-    let savedWishes = [];
-
-    try {
-      const parsedWishes = JSON.parse(localStorage.getItem(wishesStorageKey) || '[]');
-      if (Array.isArray(parsedWishes)) savedWishes = parsedWishes;
-    } catch {
-      savedWishes = [];
-    }
+    const wishStatus = document.querySelector('#wish-status');
+    const wishesApi = '/api/wishes';
 
     function makeWishLantern(wishData, animate = false) {
       const lantern = document.createElement('button');
@@ -249,11 +244,21 @@
       return lantern;
     }
 
-    savedWishes.forEach((wishData) => {
-      if (wishData && typeof wishData.text === 'string' && wishData.text.trim()) {
-        makeWishLantern(wishData);
+    async function loadSharedWishes() {
+      try {
+        const response = await fetch(wishesApi, { headers: { Accept: 'application/json' } });
+        if (!response.ok) {
+          const result = await response.json().catch(() => ({}));
+          throw new Error(result.error || `Could not load wishes (HTTP ${response.status}).`);
+        }
+        const wishes = await response.json();
+        if (Array.isArray(wishes)) wishes.forEach((wishData) => makeWishLantern(wishData));
+      } catch (error) {
+        console.error(error);
+        wishStatus.textContent = 'Saved wishes could not load. Check Supabase settings and redeploy.';
       }
-    });
+    }
+    loadSharedWishes();
 
     // A loose stream of small, glowing lanterns adds depth to the illustrated welcome sky.
     const storyLanterns = document.querySelector('#storybook-lanterns');
@@ -277,7 +282,7 @@
       window.setTimeout(() => input.focus(), 450);
     });
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const wish = input.value.trim();
       if (!wish) return;
@@ -291,17 +296,20 @@
         sway: Number((4 + Math.random() * 2).toFixed(2)),
         delay: Number((-Math.random() * 3).toFixed(2))
       };
-      savedWishes.push(wishData);
       try {
-        localStorage.setItem(wishesStorageKey, JSON.stringify(savedWishes));
-      } catch {
-        savedWishes.pop();
-        input.setCustomValidity('This browser could not save your wish. Check that site storage is available, then try again.');
-        input.reportValidity();
-        input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
+        const response = await fetch(wishesApi, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(wishData)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Your wish could not be saved. Try again.');
+        makeWishLantern(result, true);
+        wishStatus.textContent = '';
+      } catch (error) {
+        wishStatus.textContent = error.message;
         return;
       }
-      makeWishLantern(wishData, true);
 
       input.value = '';
       input.focus();
