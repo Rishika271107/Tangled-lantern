@@ -272,26 +272,81 @@
             if (Number.isSafeInteger(id)) latestWishId = Math.max(latestWishId, id);
           });
         }
-        window.setInterval(async () => {
-          if (document.hidden) return;
-          try {
-            const newWishes = await getSharedWishes(latestWishId);
-            if (Array.isArray(newWishes)) {
-              newWishes.forEach((wishData) => {
-                makeWishLantern(wishData, true);
-                const id = Number(wishData.id);
-                if (Number.isSafeInteger(id)) latestWishId = Math.max(latestWishId, id);
-              });
-            }
-          } catch (error) {
-            console.error('Live wish refresh failed:', error);
-          }
-        }, 3000);
+        await connectToLiveWishes();
       } catch (error) {
         console.error(error);
         wishStatus.textContent = 'Saved wishes could not load. Check Supabase settings and redeploy.';
       }
     }
+
+    async function catchUpMissedWishes() {
+      const newWishes = await getSharedWishes(latestWishId);
+      if (!Array.isArray(newWishes)) return;
+      newWishes.forEach((wishData) => {
+        makeWishLantern(wishData, true);
+        const id = Number(wishData.id);
+        if (Number.isSafeInteger(id)) latestWishId = Math.max(latestWishId, id);
+      });
+    }
+
+    async function connectToLiveWishes() {
+      let fallbackTimer;
+      const startFallbackPolling = () => {
+        if (fallbackTimer) return;
+        fallbackTimer = window.setInterval(async () => {
+          if (document.hidden) return;
+          try {
+            await catchUpMissedWishes();
+          } catch (error) {
+            console.error('Wish sync fallback failed:', error);
+          }
+        }, 3000);
+      };
+
+      try {
+        const configResponse = await fetch('/api/realtime-config', { cache: 'no-store' });
+        const config = await configResponse.json().catch(() => ({}));
+        if (!configResponse.ok) throw new Error(config.error || 'Realtime configuration is missing.');
+
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const realtimeClient = createClient(config.url, config.publishableKey, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        });
+        const channel = realtimeClient
+          .channel('lantern-wishes-live')
+          .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'lantern_wishes'
+          }, ({ new: row }) => {
+            const wishData = { ...row, text: row.wish };
+            makeWishLantern(wishData, true);
+            const id = Number(wishData.id);
+            if (Number.isSafeInteger(id)) latestWishId = Math.max(latestWishId, id);
+          })
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              if (fallbackTimer) window.clearInterval(fallbackTimer);
+              fallbackTimer = undefined;
+              wishStatus.textContent = '';
+              catchUpMissedWishes().catch((error) => console.error('Wish catch-up failed:', error));
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+              wishStatus.textContent = 'Live connection paused; reconnecting…';
+              startFallbackPolling();
+            }
+          });
+
+        window.addEventListener('beforeunload', () => {
+          if (fallbackTimer) window.clearInterval(fallbackTimer);
+          realtimeClient.removeChannel(channel);
+        }, { once: true });
+      } catch (error) {
+        console.error('Realtime setup failed:', error);
+        wishStatus.textContent = 'Live updates need a Supabase publishable key and Realtime enabled.';
+        startFallbackPolling();
+      }
+    }
+
     loadSharedWishes();
 
     // A loose stream of small, glowing lanterns adds depth to the illustrated welcome sky.

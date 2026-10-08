@@ -13,3 +13,24 @@ CREATE TABLE IF NOT EXISTS public.lantern_wishes (
 ALTER TABLE public.lantern_wishes ENABLE ROW LEVEL SECURITY;
 GRANT ALL ON TABLE public.lantern_wishes TO service_role;
 GRANT USAGE, SELECT ON SEQUENCE public.lantern_wishes_id_seq TO service_role;
+
+-- Realtime subscribers use the public/anon role, so permit read-only visibility
+-- of wishes. Inserts still go through the server API using its private secret key.
+GRANT SELECT ON TABLE public.lantern_wishes TO anon;
+DROP POLICY IF EXISTS "Anyone can read lantern wishes" ON public.lantern_wishes;
+CREATE POLICY "Anyone can read lantern wishes"
+  ON public.lantern_wishes FOR SELECT TO anon USING (true);
+
+-- Enable live INSERT events for this table. This is safe to run more than once.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+      AND schemaname = 'public'
+      AND tablename = 'lantern_wishes'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.lantern_wishes;
+  END IF;
+END
+$$;
