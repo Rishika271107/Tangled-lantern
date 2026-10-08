@@ -79,6 +79,8 @@ async function handler(request) {
     let message = 'Supabase returned an error. Check the Vercel function logs for this request.';
     if (code === '42P01' || code === 'PGRST205') {
       message = 'The lantern_wishes table was not found in the Supabase project connected to Vercel. Run supabase/schema.sql in that same project.';
+    } else if (code === 'PGRST125') {
+      message = 'SUPABASE_URL must be the base project URL, such as https://your-project.supabase.co. Remove any /rest/v1 path or other suffix.';
     } else if (code === '42501') {
       message = 'Supabase denied access to lantern_wishes. Run the GRANT statements in supabase/schema.sql in the connected project.';
     } else if (code === '401' || code === '403') {
