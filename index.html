@@ -189,6 +189,17 @@
       .lantern .wish { left: auto; right: calc(100% + 9px); }
       .lantern:nth-child(3n) .wish { left: calc(100% + 9px); right: auto; }
     }
+    @media (max-width: 380px) {
+      .landing-content { padding-inline: 14px; transform: translateY(-11vh); }
+      .landing .eyebrow { letter-spacing: .18em; }
+      .landing .subtitle { max-width: 34ch; font-size: 13px; }
+      .storybook-couple { bottom: calc(4% + env(safe-area-inset-bottom)); height: clamp(140px, 23vh, 185px); }
+      .composer { width: min(168px, 46vw); padding: 9px; gap: 6px; }
+      .composer label { letter-spacing: .08em; }
+      .composer input { padding: 7px; font-size: 12px; }
+      .composer button { padding: 8px; font-size: 10px; }
+      .wish { max-width: 41vw; font-size: 10px; }
+    }
     @media (max-height: 520px) and (orientation: landscape) {
       .sky { min-height: 100svh; }
       .landing-content { transform: translateY(-7vh) scale(.8); }
@@ -408,9 +419,11 @@
       if (!wish) return;
 
       // Leave the left edge clear for the wish composer and scatter launches across the sky.
+      const composerRight = form.getBoundingClientRect().right;
+      const minX = Math.min(88, Math.max(22, ((composerRight + 24) / window.innerWidth) * 100));
       const wishData = {
         text: wish,
-        x: Number((22 + Math.random() * 74).toFixed(2)),
+        x: Number((minX + Math.random() * (96 - minX)).toFixed(2)),
         rest: Number((68 + Math.random() * 25).toFixed(2)),
         size: 34 + Math.round(Math.random() * 14),
         sway: Number((4 + Math.random() * 2).toFixed(2)),
