@@ -119,7 +119,8 @@
     }
     .lantern:hover, .lantern:focus-visible, .lantern:focus-within { animation-play-state: paused; z-index: 5; filter: drop-shadow(0 0 14px rgba(255, 194, 91, .68)); outline: none; }
     .lantern.new-lantern { --rest: 72%; animation: lantern-launch 4s cubic-bezier(.2,.72,.27,1) forwards, sway var(--sway) ease-in-out 4s infinite alternate; }
-    .lantern.new-lantern:hover, .lantern.new-lantern:focus-visible { animation-play-state: paused, paused; }
+    .lantern.saved-lantern { animation: sway var(--sway) ease-in-out var(--delay) infinite alternate; }
+    .lantern.new-lantern:hover, .lantern.new-lantern:focus-visible { animation-play-state: running, paused; }
     .lantern:focus-visible .shell { outline: 2px solid #fff1c8; outline-offset: 5px; }
     .shell {
       position: absolute; inset: 4% 5% 17%; overflow: hidden;
@@ -203,6 +204,56 @@
     const input = document.querySelector('#wish-input');
     const field = document.querySelector('.lantern-field');
     const sky = document.querySelector('.sky');
+    const wishesStorageKey = 'lantern-wishes-v1';
+    let savedWishes = [];
+
+    try {
+      const parsedWishes = JSON.parse(localStorage.getItem(wishesStorageKey) || '[]');
+      if (Array.isArray(parsedWishes)) savedWishes = parsedWishes;
+    } catch {
+      savedWishes = [];
+    }
+
+    function makeWishLantern(wishData, animate = false) {
+      const lantern = document.createElement('button');
+      lantern.type = 'button';
+      lantern.className = `lantern ${animate ? 'new-lantern' : 'saved-lantern'}`;
+      lantern.style.setProperty('--x', `${wishData.x}%`);
+      lantern.style.setProperty('--rest', `${wishData.rest}%`);
+      lantern.style.setProperty('--size', `${wishData.size}px`);
+      lantern.style.setProperty('--sway', `${wishData.sway}s`);
+      lantern.style.setProperty('--delay', `${wishData.delay || 0}s`);
+      lantern.setAttribute('aria-label', `Floating lantern. Wish: ${wishData.text}`);
+
+      const shell = document.createElement('span');
+      shell.className = 'shell';
+      const flame = document.createElement('i');
+      flame.className = 'flame';
+      shell.append(flame);
+      const rim = document.createElement('i');
+      rim.className = 'rim';
+      const wishText = document.createElement('span');
+      wishText.className = 'wish';
+      wishText.textContent = wishData.text;
+      lantern.append(shell, rim, wishText);
+      field.append(lantern);
+
+      if (animate) {
+        lantern.addEventListener('animationend', (event) => {
+          if (event.animationName !== 'lantern-launch') return;
+          lantern.classList.remove('new-lantern');
+          lantern.classList.add('saved-lantern');
+          lantern.style.animation = '';
+        }, { once: true });
+      }
+      return lantern;
+    }
+
+    savedWishes.forEach((wishData) => {
+      if (wishData && typeof wishData.text === 'string' && wishData.text.trim()) {
+        makeWishLantern(wishData);
+      }
+    });
 
     // A loose stream of small, glowing lanterns adds depth to the illustrated welcome sky.
     const storyLanterns = document.querySelector('#storybook-lanterns');
@@ -231,29 +282,26 @@
       const wish = input.value.trim();
       if (!wish) return;
 
-      const lantern = document.createElement('button');
-      lantern.type = 'button';
-      lantern.className = 'lantern new-lantern';
       // Leave the left edge clear for the wish composer and scatter launches across the sky.
-      lantern.style.setProperty('--x', `${22 + Math.random() * 74}%`);
-      const targetHeight = 68 + Math.random() * 25;
-      lantern.style.setProperty('--rest', `${targetHeight}%`);
-      lantern.style.setProperty('--size', `${34 + Math.round(Math.random() * 14)}px`);
-      lantern.style.setProperty('--sway', `${4 + Math.random() * 2}s`);
-      lantern.setAttribute('aria-label', `Your floating lantern. Wish: ${wish}`);
-
-      const shell = document.createElement('span');
-      shell.className = 'shell';
-      const flame = document.createElement('i');
-      flame.className = 'flame';
-      shell.append(flame);
-      const rim = document.createElement('i');
-      rim.className = 'rim';
-      const wishText = document.createElement('span');
-      wishText.className = 'wish';
-      wishText.textContent = wish;
-      lantern.append(shell, rim, wishText);
-      field.append(lantern);
+      const wishData = {
+        text: wish,
+        x: Number((22 + Math.random() * 74).toFixed(2)),
+        rest: Number((68 + Math.random() * 25).toFixed(2)),
+        size: 34 + Math.round(Math.random() * 14),
+        sway: Number((4 + Math.random() * 2).toFixed(2)),
+        delay: Number((-Math.random() * 3).toFixed(2))
+      };
+      savedWishes.push(wishData);
+      try {
+        localStorage.setItem(wishesStorageKey, JSON.stringify(savedWishes));
+      } catch {
+        savedWishes.pop();
+        input.setCustomValidity('This browser could not save your wish. Check that site storage is available, then try again.');
+        input.reportValidity();
+        input.addEventListener('input', () => input.setCustomValidity(''), { once: true });
+        return;
+      }
+      makeWishLantern(wishData, true);
 
       input.value = '';
       input.focus();
