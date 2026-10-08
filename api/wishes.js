@@ -30,13 +30,18 @@ async function handler(request) {
     });
 
     if (request.method === 'GET') {
+      const after = Number(new URL(request.url).searchParams.get('after') || 0);
+      if (!Number.isSafeInteger(after) || after < 0) {
+        return json({ error: 'The after cursor must be a non-negative integer.' }, 400);
+      }
       const allRows = [];
       for (let offset = 0; ; offset += WISH_PAGE_SIZE) {
-        const { data, error } = await supabase
+        let query = supabase
           .from('lantern_wishes')
           .select('id, wish, x, rest, size, sway, delay')
-          .order('id', { ascending: true })
-          .range(offset, offset + WISH_PAGE_SIZE - 1);
+          .order('id', { ascending: true });
+        if (after > 0) query = query.gt('id', after);
+        const { data, error } = await query.range(offset, offset + WISH_PAGE_SIZE - 1);
         if (error) throw error;
         allRows.push(...data);
         if (data.length < WISH_PAGE_SIZE) break;
