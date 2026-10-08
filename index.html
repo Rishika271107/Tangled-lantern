@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080b20">
   <meta name="description" content="A quiet night sky filled with floating lanterns and little wishes." />
   <title>Lantern Wishes</title>
@@ -162,11 +162,42 @@
     @keyframes star-drift { from { transform: translateY(0); } to { transform: translateY(-250px); } }
     @keyframes sigil-glow { from { box-shadow: 0 0 28px rgba(255,193,103,.12), inset 0 0 18px rgba(255,193,103,.06); } to { box-shadow: 0 0 48px rgba(255,193,103,.28), inset 0 0 28px rgba(255,193,103,.16); } }
     @keyframes story-float { from { margin-top: 0; } to { margin-top: -18px; } }
+    @media (max-width: 900px) {
+      .landing-content { width: min(92%, 650px); }
+      .storybook-couple { width: min(68vw, 520px); }
+      .composer { width: min(230px, 28vw); }
+      .wish { max-width: min(220px, 42vw); }
+    }
     @media (max-width: 600px) {
-      .moon { right: 9%; top: 19%; }
-      .lantern { --size: 34px; }
-      .composer { left: 14px; bottom: 48px; width: min(230px, calc(100% - 28px)); padding: 14px; }
-      .wish { font-size: 12px; padding: 8px 10px; }
+      .sky { min-height: 100svh; }
+      .moon { right: 8%; top: 14%; width: 54px; }
+      .landing-content { width: 100%; padding: 20px 18px; transform: translateY(-13vh); }
+      .landing .eyebrow { font-size: 9px; letter-spacing: .24em; }
+      .landing h1 { font-size: clamp(38px, 11vw, 58px); }
+      .landing .subtitle { max-width: 38ch; margin: 15px auto 24px; font-size: 14px; line-height: 1.6; }
+      .make-wish { padding: 12px 20px; font-size: 11px; }
+      .storybook-couple { bottom: calc(5% + env(safe-area-inset-bottom)); width: min(94vw, 440px); height: clamp(150px, 25vh, 215px); }
+      .storybook-couple .figure.princess { left: 36%; }
+      .storybook-couple .figure.companion { right: 35%; }
+      .lantern { --size: 31px; }
+      .composer { left: calc(12px + env(safe-area-inset-left)); bottom: calc(12px + env(safe-area-inset-bottom)); width: min(184px, 46vw); padding: 11px; gap: 7px; border-radius: 15px; }
+      .composer label { font-size: 9px; letter-spacing: .12em; }
+      .composer input { min-height: 0; padding: 8px; font-size: 13px; }
+      .composer button { padding: 9px 10px; font-size: 11px; }
+      .wish-status { min-height: 0; font-size: 9px; }
+      .wish { max-width: 43vw; padding: 8px 9px; font-size: 11px; }
+      .lantern .wish { left: auto; right: calc(100% + 9px); }
+      .lantern:nth-child(3n) .wish { left: calc(100% + 9px); right: auto; }
+    }
+    @media (max-height: 520px) and (orientation: landscape) {
+      .sky { min-height: 100svh; }
+      .landing-content { transform: translateY(-7vh) scale(.8); }
+      .landing .subtitle { margin: 10px auto 14px; }
+      .storybook-couple { bottom: 1%; height: 34vh; }
+      .composer { left: calc(12px + env(safe-area-inset-left)); bottom: calc(10px + env(safe-area-inset-bottom)); width: min(150px, 32vh); padding: 9px; gap: 5px; }
+      .composer input { padding: 6px; font-size: 12px; }
+      .composer button { padding: 7px; }
+      .wish-status { font-size: 8px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
