@@ -70,11 +70,21 @@ async function handler(request) {
       return json({ error: 'Invalid lantern placement.' }, 400);
     }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('lantern_wishes')
       .insert({ wish, x, rest, size, sway, delay })
       .select('id, wish, x, rest, size, sway, delay')
       .single();
+    // Older deployments may still have the original 68–93 rest constraint.
+    // Retry at its lower bound so mobile wishes remain usable until the SQL
+    // migration is applied. Once migrated, the full phone height range is used.
+    if (error?.code === '23514' && rest < 68) {
+      ({ data, error } = await supabase
+        .from('lantern_wishes')
+        .insert({ wish, x, rest: 68, size, sway, delay })
+        .select('id, wish, x, rest, size, sway, delay')
+        .single());
+    }
     if (error) throw error;
     const { wish: savedWish, ...saved } = data;
     return json({ ...saved, text: savedWish }, 201);
@@ -88,6 +98,8 @@ async function handler(request) {
       message = 'SUPABASE_URL must be the base project URL, such as https://your-project.supabase.co. Remove any /rest/v1 path or other suffix.';
     } else if (code === '42501') {
       message = 'Supabase denied access to lantern_wishes. Run the GRANT statements in supabase/schema.sql in the connected project.';
+    } else if (code === '23514') {
+      message = 'Supabase rejected this lantern placement because the database schema is out of date. Run the latest supabase/schema.sql in your Supabase SQL Editor, then try again.';
     } else if (code === '401' || code === '403') {
       message = 'Supabase rejected the API key. Check that SUPABASE_URL and SUPABASE_SECRET_KEY belong to the same project.';
     }
