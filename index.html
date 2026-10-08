@@ -169,7 +169,13 @@
       .wish { max-width: min(220px, 42vw); }
     }
     @media (max-width: 600px) {
-      .sky { min-height: 100svh; }
+      body { overflow: auto; overscroll-behavior-y: contain; }
+      .sky { height: auto; min-height: 100svh; }
+      .sky.entered { min-height: 175svh; }
+      .sky.entered .moon { position: fixed; }
+      .sky.entered .lantern-field { position: absolute; inset: 0 0 auto; height: 175svh; }
+      .sky.entered .composer { position: fixed; }
+      .sky.entered .horizon { position: absolute; bottom: -78px; }
       .moon { right: 8%; top: 14%; width: 54px; }
       .landing-content { width: 100%; padding: 20px 18px; transform: translateY(-13vh); }
       .landing .eyebrow { font-size: 9px; letter-spacing: .24em; }
@@ -421,10 +427,11 @@
       // Leave the left edge clear for the wish composer and scatter launches across the sky.
       const composerRight = form.getBoundingClientRect().right;
       const minX = Math.min(88, Math.max(22, ((composerRight + 24) / window.innerWidth) * 100));
+      const phoneSky = window.matchMedia('(max-width: 600px)').matches;
       const wishData = {
         text: wish,
         x: Number((minX + Math.random() * (96 - minX)).toFixed(2)),
-        rest: Number((68 + Math.random() * 25).toFixed(2)),
+        rest: Number(((phoneSky ? 8 : 68) + Math.random() * (phoneSky ? 85 : 25)).toFixed(2)),
         size: 34 + Math.round(Math.random() * 14),
         sway: Number((4 + Math.random() * 2).toFixed(2)),
         delay: Number((-Math.random() * 3).toFixed(2))

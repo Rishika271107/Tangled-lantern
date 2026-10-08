@@ -66,7 +66,7 @@ async function handler(request) {
     const size = Number(body.size);
     const sway = Number(body.sway);
     const delay = Number(body.delay) || 0;
-    if (![x, rest, size, sway, delay].every(Number.isFinite) || x < 22 || x > 96 || rest < 68 || rest > 93 || size < 34 || size > 48 || sway < 4 || sway > 6 || delay < -3 || delay > 0) {
+    if (![x, rest, size, sway, delay].every(Number.isFinite) || x < 22 || x > 96 || rest < 8 || rest > 93 || size < 34 || size > 48 || sway < 4 || sway > 6 || delay < -3 || delay > 0) {
       return json({ error: 'Invalid lantern placement.' }, 400);
     }
 
