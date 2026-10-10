@@ -83,6 +83,10 @@ There is no automated test, lint, or type-check script yet. For a local smoke ch
 - Maintainer: [Rishika Paleti](https://www.linkedin.com/in/rishika-jasper-paleti11)
 - GitHub repository: [Rishika271107/Tangled-lantern](https://github.com/Rishika271107/Tangled-lantern)
 
+## Search indexing
+
+The public site includes page metadata, `robots.txt`, and `sitemap.xml` for search crawlers. To request indexing, verify `https://tangled-lantern.vercel.app/` as a property in [Google Search Console](https://search.google.com/search-console), submit `https://tangled-lantern.vercel.app/sitemap.xml`, and use URL Inspection to request indexing. Google decides whether and when to index a site; these files do not guarantee search placement. Keep the canonical URLs in `index.html`, `robots.txt`, and `sitemap.xml` aligned if the production domain changes.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and pull request guidance. Use the issue forms under `.github/ISSUE_TEMPLATE/` for bugs and feature ideas.

@@ -25,7 +25,7 @@ const localWishes = [];
 const contentTypes = new Map([
   ['.html', 'text/html; charset=utf-8'], ['.css', 'text/css; charset=utf-8'],
   ['.js', 'text/javascript; charset=utf-8'], ['.json', 'application/json; charset=utf-8'],
-  ['.svg', 'image/svg+xml'], ['.png', 'image/png'], ['.jpg', 'image/jpeg'],
+  ['.svg', 'image/svg+xml'], ['.xml', 'application/xml; charset=utf-8'], ['.txt', 'text/plain; charset=utf-8'], ['.png', 'image/png'], ['.jpg', 'image/jpeg'],
   ['.jpeg', 'image/jpeg'], ['.ico', 'image/x-icon']
 ]);
 
@@ -121,7 +121,7 @@ const server = createServer(async (request, response) => {
   const fileRelativePath = relativePath.split(/[\\/]/).join(sep);
   const filePath = resolve(projectRoot, fileRelativePath);
   const isProjectFile = filePath === projectRoot || filePath.startsWith(`${projectRoot}${sep}`);
-  const isPublicFile = fileRelativePath === 'index.html' || fileRelativePath.startsWith(`assets${sep}`);
+  const isPublicFile = ['index.html', 'robots.txt', 'sitemap.xml'].includes(fileRelativePath) || fileRelativePath.startsWith(`assets${sep}`);
   if (!isProjectFile) return response.writeHead(403).end('Forbidden');
   if (!isPublicFile) return response.writeHead(404).end('Not found');
   try {

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tangled-lantern.vercel.app/sitemap.xml
