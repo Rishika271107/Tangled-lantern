@@ -1,0 +1,20 @@
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated build output
+node_modules/
+dist/
+build/
+.vercel/
+coverage/
+
+# Logs and local operating-system/editor files
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

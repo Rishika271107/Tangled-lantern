@@ -1,0 +1,4 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "devCommand": "node scripts/dev-static.js"
+}

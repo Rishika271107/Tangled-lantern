@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "node scripts/dev-static.js",
+    "vercel:dev": "vercel dev"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.0"
   },
   "devDependencies": {
-    "vercel": "^41.7.0"
+    "vercel": "63.1.0"
   }
 }
